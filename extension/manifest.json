@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "MD Reader",
+  "version": "0.8.1",
+  "description": "パソコンの中の .md を、開いた瞬間に読みやすく表示します。",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["file:///*.md", "file:///*.MD", "file:///*.markdown"],
+      "css": ["reader.css", "toc.css"],
+      "js": ["vendor/marked.umd.js", "vendor/purify.min.js", "vendor/highlight.min.js", "toc.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "host_permissions": ["file:///*"],
+  "web_accessible_resources": [
+    {
+      "resources": ["images/washi.jpg"],
+      "matches": ["file:///*"]
+    }
+  ]
+}

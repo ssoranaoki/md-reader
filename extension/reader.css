@@ -1,0 +1,205 @@
+/* MD Reader — 和紙と木の温もり（単位3）
+   content_scripts の css で .md のページに送り込まれる。
+   html.md-reader（content.js が付ける目印）の中だけに効かせ、ほかのページには影響させない。 */
+
+html.md-reader {
+  --mdr-paper: #f6f0e3;
+  --mdr-paper-deep: #efe6d2;
+  --mdr-ink: #2b2622;
+  --mdr-ink-soft: #5a5048;
+  --mdr-shu: #a83f26;
+  --mdr-wood: #d8b88a;
+  --mdr-wood-deep: #8a6236;
+  --mdr-line: #cdbb9c;
+  --mdr-code-bg: #ebe0c8;
+  --mdr-link: #2f4c78;
+  background: var(--mdr-paper);
+}
+
+html.md-reader body {
+  margin: 0;
+  /* 和紙の質感（単位4）。拡張機能の中の画像は web_accessible_resources に書いたものだけページから使える。
+     __MSG_@@extension_id__ には、Chrome が拡張機能の ID を入れてくれる */
+  background: var(--mdr-paper) url("chrome-extension://__MSG_@@extension_id__/images/washi.jpg") repeat;
+  color: var(--mdr-ink);
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", "Meiryo", system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.85;
+}
+
+.md-reader-doc {
+  box-sizing: border-box;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 72px 40px 96px;     /* 上は「元の文字」ボタンと見出しが重ならない高さ */
+  overflow-wrap: anywhere;
+}
+
+/* 見出し: 左に朱の印 */
+.md-reader-doc h1,
+.md-reader-doc h2,
+.md-reader-doc h3,
+.md-reader-doc h4 {
+  line-height: 1.4;
+  margin: 1.8em 0 0.6em;
+  color: #1f1b18;
+}
+.md-reader-doc h1 {
+  font-size: 2.1rem;
+  margin-top: 0;
+  padding-left: 16px;
+  border-left: 7px solid var(--mdr-shu);
+}
+.md-reader-doc h2 {
+  font-size: 1.5rem;
+  padding: 0 0 6px 14px;
+  border-left: 5px solid var(--mdr-shu);
+  border-bottom: 1px solid var(--mdr-line);
+}
+.md-reader-doc h3 {
+  font-size: 1.2rem;
+  padding-left: 12px;
+  border-left: 3px solid var(--mdr-shu);
+}
+.md-reader-doc h4 { font-size: 1.05rem; }
+
+.md-reader-doc p,
+.md-reader-doc ul,
+.md-reader-doc ol { margin: 0 0 1em; }
+.md-reader-doc li { margin: 0.2em 0; }
+.md-reader-doc li > ul,
+.md-reader-doc li > ol { margin: 0.2em 0; }
+
+.md-reader-doc a { color: var(--mdr-link); }
+.md-reader-doc strong { color: #1c1814; }
+.md-reader-doc hr { border: 0; border-top: 1px solid var(--mdr-line); margin: 2em 0; }
+.md-reader-doc img { max-width: 100%; height: auto; border-radius: 4px; }
+
+/* 引用 */
+.md-reader-doc blockquote {
+  margin: 0 0 1em;
+  padding: 10px 18px;
+  background: var(--mdr-paper-deep);
+  border-left: 4px solid var(--mdr-wood-deep);
+  border-radius: 0 8px 8px 0;
+  color: var(--mdr-ink-soft);
+}
+.md-reader-doc blockquote > :last-child { margin-bottom: 0; }
+
+/* 表: 木の色の見出し */
+.md-reader-doc table {
+  border-collapse: collapse;
+  margin: 0 0 1.2em;
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+.md-reader-doc th,
+.md-reader-doc td {
+  border: 1px solid var(--mdr-line);
+  padding: 8px 14px;
+  min-width: 4em;           /* 狭い画面で1文字ずつ折り返さない（はみ出す分は表の中で横スクロール） */
+  overflow-wrap: normal;
+}
+.md-reader-doc th {
+  background: var(--mdr-wood);
+  color: var(--mdr-ink);
+}
+.md-reader-doc tr:nth-child(even) td { background: rgba(216, 184, 138, 0.14); }
+
+/* コード */
+.md-reader-doc code {
+  font-family: "Cascadia Code", "Consolas", "Menlo", monospace;
+  font-size: 0.9em;
+  background: var(--mdr-code-bg);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+.md-reader-doc pre {
+  background: var(--mdr-code-bg);
+  border: 1px solid var(--mdr-line);
+  border-radius: 8px;
+  padding: 14px 18px;
+  overflow-x: auto;
+  line-height: 1.6;
+  margin: 0 0 1.2em;
+}
+.md-reader-doc pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.88rem;
+  overflow-wrap: normal;
+}
+
+/* コードの色分け（highlight.js の目印に、苔・煉瓦・藍の色を付ける） */
+.md-reader-doc .hljs-keyword,
+.md-reader-doc .hljs-selector-tag,
+.md-reader-doc .hljs-built_in,
+.md-reader-doc .hljs-literal { color: #8e3a1f; }              /* 煉瓦 */
+.md-reader-doc .hljs-string,
+.md-reader-doc .hljs-regexp,
+.md-reader-doc .hljs-template-tag,
+.md-reader-doc .hljs-addition { color: #4b6a2e; }             /* 苔 */
+.md-reader-doc .hljs-number,
+.md-reader-doc .hljs-attr,
+.md-reader-doc .hljs-attribute,
+.md-reader-doc .hljs-variable,
+.md-reader-doc .hljs-property,
+.md-reader-doc .hljs-symbol { color: #2f4c78; }               /* 藍 */
+.md-reader-doc .hljs-title,
+.md-reader-doc .hljs-section,
+.md-reader-doc .hljs-type,
+.md-reader-doc .hljs-name,
+.md-reader-doc .hljs-selector-class,
+.md-reader-doc .hljs-selector-id { color: #6a4a1c; }          /* 木の濃い色 */
+.md-reader-doc .hljs-comment,
+.md-reader-doc .hljs-quote,
+.md-reader-doc .hljs-meta { color: #6e6253; font-style: italic; }
+.md-reader-doc .hljs-deletion { color: #8e3a1f; text-decoration: line-through; }
+.md-reader-doc .hljs-emphasis { font-style: italic; }
+.md-reader-doc .hljs-strong { font-weight: 700; }
+
+/* 「元の文字」ボタン（単位4）。元の文字を表示中は html.md-reader の印が外れるので、
+   ボタンだけは印に頼らず .md-reader-toggle で見た目を決める */
+.md-reader-toggle {
+  position: fixed;
+  top: 16px;
+  right: 20px;
+  z-index: 2147483647;
+  font: 600 14px/1 "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+  color: #2b2622;
+  background: #d8b88a;
+  border: 1px solid #8a6236;
+  border-radius: 999px;
+  padding: 9px 16px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(60, 40, 20, 0.25);
+}
+.md-reader-toggle:hover { background: #cfa874; }
+.md-reader-toggle:focus-visible { outline: 3px solid #2f4c78; outline-offset: 2px; }
+
+@media (max-width: 640px) {
+  html.md-reader body { font-size: 16px; }
+  .md-reader-doc { padding: 72px 18px 64px; }
+  .md-reader-doc h1 { font-size: 1.7rem; }
+}
+
+/* 「更新しました」の知らせ（第2版 単位6）。「元の文字」ボタンの下に一瞬だけ出る。印に頼らない */
+.md-reader-notice {
+  position: fixed;
+  top: 60px;
+  right: 20px;
+  z-index: 2147483647;
+  font: 600 13px/1 "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+  color: #fff;
+  background: #a83f26;
+  border-radius: 999px;
+  padding: 8px 14px;
+  box-shadow: 0 2px 6px rgba(60, 40, 20, 0.25);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+.md-reader-notice.show { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .md-reader-notice { transition: none; } }
